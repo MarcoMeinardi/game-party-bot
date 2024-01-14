@@ -67,6 +67,13 @@ async function update_counter() {
 client.on("interactionCreate", interaction => {
 	if (!interaction.isButton()) return;
 	if (interaction.customId == "play") {
+		if (people.find((id, _) => id == interaction.member.id)) {
+			interaction.reply({
+				content: "I know you really want to game, but please calm down",
+				ephemeral: true
+			});
+			return;
+		}
 		people.push([interaction.member.id, interaction.member.nickname]);
 		update_counter();
 
@@ -76,6 +83,14 @@ client.on("interactionCreate", interaction => {
 			ephemeral: true
 		});
 	} else if (interaction.customId == "leave") {
+		if (people.find((id, _) => id == interaction.member.id)) {
+			interaction.reply({
+				content: "You are already being a bad gamer",
+				ephemeral: true
+			});
+			return;
+		}
+
 		people = people.filter((id, _) => id == interaction.member.id);
 		update_counter();
 
