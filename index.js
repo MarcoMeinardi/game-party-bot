@@ -83,7 +83,7 @@ client.on("interactionCreate", interaction => {
 			ephemeral: true
 		});
 	} else if (interaction.customId == "leave") {
-		if (people.find(([id, _]) => id != interaction.member.id)) {
+		if (!people.find(([id, _]) => id == interaction.member.id)) {
 			interaction.reply({
 				content: "You are already being a bad gamer :angry:",
 				ephemeral: true
