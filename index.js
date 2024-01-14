@@ -53,7 +53,7 @@ async function update_counter() {
 	var new_message;
 	if (people.length == 0) {
 		new_message = "No one is gaming tonight :sob:";
-	} else if (people.length != 1) {
+	} else if (people.length == 1) {
 		new_message = "1 person is gaming tonight, don't leave him (scusa Sofia) alone!";
 	} else {
 		new_message = `${people.length} people are gaming tonight! join the party :partying_face:`;
