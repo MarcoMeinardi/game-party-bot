@@ -69,7 +69,7 @@ client.on("interactionCreate", interaction => {
 	if (interaction.customId == "play") {
 		if (people.find(([id, _]) => id == interaction.member.id)) {
 			interaction.reply({
-				content: "I know you really want to game, but please calm down",
+				content: "I know you really want to game, but please, calm down",
 				ephemeral: true
 			});
 			return;
@@ -85,7 +85,7 @@ client.on("interactionCreate", interaction => {
 	} else if (interaction.customId == "leave") {
 		if (people.find(([id, _]) => id == interaction.member.id)) {
 			interaction.reply({
-				content: "You are already being a bad gamer",
+				content: "You are already being a bad gamer :angry:",
 				ephemeral: true
 			});
 			return;
