@@ -91,7 +91,7 @@ client.on("interactionCreate", interaction => {
 			return;
 		}
 
-		people = people.filter(([id, _]) => id == interaction.member.id);
+		people = people.filter(([id, _]) => id != interaction.member.id);
 		update_counter();
 
 		console.log(`${interaction.user.username} left`);
