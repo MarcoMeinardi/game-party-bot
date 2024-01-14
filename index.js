@@ -56,7 +56,7 @@ async function update_counter() {
 	} else if (people.length == 1) {
 		new_message = "1 person is gaming tonight, don't leave him (scusa Sofia) alone!";
 	} else {
-		new_message = `${people.length} people are gaming tonight! join the party :partying_face:`;
+		new_message = `${people.length} people are gaming tonight! Join the party :partying_face:`;
 	}
 	for (let [_, person] of people) {
 		new_message += `\n@${person}`;
