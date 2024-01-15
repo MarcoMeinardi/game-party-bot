@@ -105,6 +105,7 @@ client.on("interactionCreate", interaction => {
 });
 
 schedule.scheduleJob("0 0 0 * * *", () => {
+	console.log("Reset");
 	people = [];
 	update_counter();
 });
