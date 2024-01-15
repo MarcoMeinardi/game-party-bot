@@ -41,7 +41,6 @@ async function send_buttons(channel) {
 		);
 
 	channel.send({
-		content: "Press to join",
 		components: [today, tomorrow]
 	});
 }
