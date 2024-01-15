@@ -48,7 +48,7 @@ async function send_buttons(channel) {
 
 async function send_counter(channel) {
 	counter_message = await channel.send({
-		content: "No one is playing this night :sob:"
+		content: "Waiting for gamers"
 	});
 }
 
