@@ -1,3 +1,5 @@
-config.json
+.config
 .ctags*
-node_modules
+db.dat
+bin
+build
