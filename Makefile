@@ -1,5 +1,6 @@
 CXX := g++
-CXXFLAGS := -std=c++20 -Wall -Wextra -Werror -pedantic -O2 -ldpp
+CXXFLAGS := -std=c++20 -Wall -Wextra -Werror -pedantic -O2
+LINKFLAGS := -ldpp
 
 SRC_DIR := src
 BUILD_DIR := build
@@ -15,11 +16,11 @@ all: $(TARGET)
 
 $(TARGET): $(OBJS)
 	@mkdir -p $(BIN_DIR)
-	$(CXX) $(CXXFLAGS) $^ -o $@
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LINKFLAGS)
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(BUILD_DIR)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@ $(LINKFLAGS)
 
 run: $(TARGET)
 	./$(TARGET)
