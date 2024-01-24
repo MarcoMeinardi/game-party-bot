@@ -10,6 +10,8 @@ extern std::vector<dpp::snowflake> playing_tomorrow;
 extern std::mutex playing_today_mutex;
 extern std::mutex playing_tomorrow_mutex;
 
+extern dpp::snowflake info_message_id;
+
 void load_db();
 void update_db();
 

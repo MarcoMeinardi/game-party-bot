@@ -15,6 +15,8 @@ std::vector<dpp::snowflake> playing_today;
 std::mutex playing_today_mutex;
 std::vector<dpp::snowflake> playing_tomorrow;
 std::mutex playing_tomorrow_mutex;
+
+dpp::snowflake info_message_id;
 dpp::message info_message;
 
 std::thread update_thread;
@@ -57,47 +59,60 @@ void update_info()
 
 void send_messages()
 {
-	dpp::message buttons_message = dpp::message(config.channel_id, "")
-		.add_component(dpp::component()
-			.set_type(dpp::cot_action_row)
-			.add_component(
-				dpp::component()
-					.set_type(dpp::cot_button)
-					.set_label("Play tonight")
-					.set_style(dpp::cos_success)
-					.set_id("play0")
+	if (info_message_id) {
+		try {
+			info_message = bot->message_get_sync(info_message_id, config.channel_id);
+		} catch (dpp::rest_exception& e) {
+			std::cerr << "Error getting info message: " << e.what() << std::endl;
+			info_message_id = 0;
+		}
+	}
+
+	if (!info_message_id) {
+		dpp::message buttons_message = dpp::message(config.channel_id, "")
+			.add_component(dpp::component()
+				.set_type(dpp::cot_action_row)
+				.add_component(
+					dpp::component()
+						.set_type(dpp::cot_button)
+						.set_label("Play tonight")
+						.set_style(dpp::cos_success)
+						.set_id("play0")
+				)
+				.add_component(
+					dpp::component()
+						.set_type(dpp::cot_button)
+						.set_label("Leave tonight")
+						.set_style(dpp::cos_danger)
+						.set_id("leave0")
+				)
 			)
-			.add_component(
-				dpp::component()
-					.set_type(dpp::cot_button)
-					.set_label("Leave tonight")
-					.set_style(dpp::cos_danger)
-					.set_id("leave0")
-			)
-		)
-		.add_component(dpp::component()
-			.set_type(dpp::cot_action_row)
-			.add_component(
-				dpp::component()
-					.set_type(dpp::cot_button)
-					.set_label("Play tomorrow")
-					.set_style(dpp::cos_success)
-					.set_id("play1")
-			)
-			.add_component(
-				dpp::component()
-					.set_type(dpp::cot_button)
-					.set_label("Leave tomorrow")
-					.set_style(dpp::cos_danger)
-					.set_id("leave1")
-			)
+			.add_component(dpp::component()
+				.set_type(dpp::cot_action_row)
+				.add_component(
+					dpp::component()
+						.set_type(dpp::cot_button)
+						.set_label("Play tomorrow")
+						.set_style(dpp::cos_success)
+						.set_id("play1")
+				)
+				.add_component(
+					dpp::component()
+						.set_type(dpp::cot_button)
+						.set_label("Leave tomorrow")
+						.set_style(dpp::cos_danger)
+						.set_id("leave1")
+				)
+			);
+
+		bot->message_create(buttons_message);
+
+		info_message = bot->message_create_sync(
+			dpp::message(config.channel_id, "Loading gamers...")
 		);
-
-	bot->message_create(buttons_message);
-
-	info_message = bot->message_create_sync(
-		dpp::message(config.channel_id, "Loading gamers...")
-	);
+		info_message_id = info_message.id;
+		update_db();
+	}
 	update_info();
 }
 
@@ -144,6 +159,7 @@ int main ()
 	{
 		send_messages();
 		start_updater();
+		std::cerr << "Bot ready" << std::endl;
 	});
 
 	bot->on_button_click([] (const dpp::button_click_t& event)

@@ -33,6 +33,24 @@ static void write_vector(std::ofstream& file, std::vector<dpp::snowflake>& vec)
 	}
 }
 
+static void read_snowflake(std::ifstream& file, dpp::snowflake& id)
+{
+	if (!file.read(reinterpret_cast<char*>(&id), sizeof(dpp::snowflake))) {
+		std::cerr << "Error reading snowflake from db" << std::endl;
+		file.close();
+		exit(1);
+	}
+}
+
+static void write_snowflake(std::ofstream& file, dpp::snowflake& id)
+{
+	if (!file.write(reinterpret_cast<char*>(&id), sizeof(dpp::snowflake))) {
+		std::cerr << "Error writing snowflake to db" << std::endl;
+		file.close();
+		exit(1);
+	}
+}
+
 static void create_db()
 {
 	std::ofstream db_file(DB_FILENAME, std::ios::binary);
@@ -64,6 +82,7 @@ void load_db()
 	} else {
 		read_vector(db_file, playing_today);
 		read_vector(db_file, playing_tomorrow);
+		read_snowflake(db_file, info_message_id);
 		db_file.close();
 	}
 }
@@ -93,6 +112,7 @@ void update_db()
 
 	write_vector(db_file, playing_today_copy);
 	write_vector(db_file, playing_tomorrow_copy);
+	write_snowflake(db_file, info_message_id);
 
 	db_file.close();
 	db_mutex.unlock();
