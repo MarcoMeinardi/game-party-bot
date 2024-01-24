@@ -3,7 +3,7 @@
 
 #include <dpp/dpp.h>
 
-#define DB_FILENAME "db.dat"
+#define DB_FILENAME "data/db.dat"
 
 extern std::vector<dpp::snowflake> playing_today;
 extern std::vector<dpp::snowflake> playing_tomorrow;
