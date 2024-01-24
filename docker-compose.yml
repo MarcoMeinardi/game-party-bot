@@ -5,3 +5,4 @@ services:
     build: .
     volumes:
       - ./data:/app/data:rw
+      - ./.config:/app/.config:ro

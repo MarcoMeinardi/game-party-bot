@@ -15,6 +15,4 @@ COPY Makefile Makefile
 
 RUN make
 
-COPY .config .config
-
 CMD make run
