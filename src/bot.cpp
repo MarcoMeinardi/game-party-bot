@@ -97,6 +97,34 @@ void send_messages(dpp::cluster& bot)
 	update_info(bot);
 }
 
+void start_midnight_update(dpp::cluster& bot)
+{
+	while (true) {
+		std::chrono::time_point now = std::chrono::system_clock::now();
+		time_t currentTime = std::chrono::system_clock::to_time_t(now + std::chrono::hours(24));
+		struct tm* timeInfo = std::localtime(&currentTime);
+
+		timeInfo->tm_hour = 0;
+		timeInfo->tm_min = 0;
+		timeInfo->tm_sec = 0;
+
+		std::chrono::time_point midnight = std::chrono::system_clock::from_time_t(std::mktime(timeInfo));
+		std::chrono::duration duration = midnight - now;
+		std::this_thread::sleep_for(duration);
+
+		std::cerr << "Midnight update" << std::endl;
+		playing_today_mutex.lock();
+		playing_tomorrow_mutex.lock();
+		playing_today = std::move(playing_tomorrow);
+		playing_tomorrow.clear();
+		playing_today_mutex.unlock();
+		playing_tomorrow_mutex.unlock();
+
+		update_info(bot);
+		update_db();
+	}
+}
+
 int main ()
 {
 	config = load_config();
@@ -106,6 +134,7 @@ int main ()
 	bot.on_ready([&bot] (__attribute__((unused)) const dpp::ready_t& event)
 	{
 		send_messages(bot);
+		start_midnight_update(bot);
 	});
 
 	bot.on_button_click([&bot] (const dpp::button_click_t& event)
