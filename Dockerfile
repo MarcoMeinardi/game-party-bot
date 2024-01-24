@@ -8,7 +8,6 @@ RUN \
 	rm dpp.deb && \
 	apt clean
 
-RUN mkdir /app
 WORKDIR /app
 
 COPY src src
