@@ -9,13 +9,17 @@
 
 config_t config;
 
+std::unique_ptr<dpp::cluster> bot;
+
 std::vector<dpp::snowflake> playing_today;
 std::mutex playing_today_mutex;
 std::vector<dpp::snowflake> playing_tomorrow;
 std::mutex playing_tomorrow_mutex;
 dpp::message info_message;
 
-void update_info(dpp::cluster& bot)
+std::thread update_thread;
+
+void update_info()
 {
 	std::ostringstream oss;
 	if (playing_today.empty()) {
@@ -48,10 +52,10 @@ void update_info(dpp::cluster& bot)
 	}
 
 	info_message.set_content(oss.str());
-	bot.message_edit(info_message);
+	bot->message_edit(info_message);
 }
 
-void send_messages(dpp::cluster& bot)
+void send_messages()
 {
 	dpp::message buttons_message = dpp::message(config.channel_id, "")
 		.add_component(dpp::component()
@@ -89,15 +93,15 @@ void send_messages(dpp::cluster& bot)
 			)
 		);
 
-	bot.message_create(buttons_message);
+	bot->message_create(buttons_message);
 
-	info_message = bot.message_create_sync(
+	info_message = bot->message_create_sync(
 		dpp::message(config.channel_id, "Loading gamers...")
 	);
-	update_info(bot);
+	update_info();
 }
 
-void start_midnight_update(dpp::cluster& bot)
+void start_midnight_update()
 {
 	while (true) {
 		std::chrono::time_point now = std::chrono::system_clock::now();
@@ -120,24 +124,29 @@ void start_midnight_update(dpp::cluster& bot)
 		playing_today_mutex.unlock();
 		playing_tomorrow_mutex.unlock();
 
-		update_info(bot);
+		update_info();
 		update_db();
 	}
+}
+
+void start_updater()
+{
+	update_thread = std::thread(start_midnight_update);
 }
 
 int main ()
 {
 	config = load_config();
 	load_db();
-	dpp::cluster bot(config.token);
+	bot = std::make_unique<dpp::cluster>(config.token);
 
-	bot.on_ready([&bot] (__attribute__((unused)) const dpp::ready_t& event)
+	bot->on_ready([] (__attribute__((unused)) const dpp::ready_t& event)
 	{
-		send_messages(bot);
-		start_midnight_update(bot);
+		send_messages();
+		start_updater();
 	});
 
-	bot.on_button_click([&bot] (const dpp::button_click_t& event)
+	bot->on_button_click([] (const dpp::button_click_t& event)
 	{
 		dpp::snowflake user_id = event.command.usr.id;
 		std::string user_name = event.command.member.get_nickname();
@@ -205,11 +214,13 @@ int main ()
 		);
 
 		if (need_update) {
-			update_info(bot);
+			update_info();
 			update_db();
 		}
 	});
 
-	bot.start(dpp::st_wait);
+	bot->start(dpp::st_wait);
+	update_thread.join();
+
 	return 0;
 }
